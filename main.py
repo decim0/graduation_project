@@ -1,4 +1,4 @@
-from logic import add_new_task, get_all_tasks, complete_task, update_task
+from logic import add_new_task, get_all_tasks, search_tasks, complete_task, update_task
 
 
 if __name__ == "__main__":

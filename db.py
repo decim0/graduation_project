@@ -3,7 +3,14 @@ from datetime import datetime, date
 
 
 class Database:
+    """Класс для работы с базой данных SQLite."""
+
     def __init__(self, db_name: str = "graduation_project.sqlite") -> None:
+        """Инициализация объекта Database.
+
+        Args:
+            db_name: Название БД (по умол. "graduation_project.sqlite").
+        """
         self.conn = sqlite3.connect(db_name)
         self.cursor = self.conn.cursor()
         self.create_tables()
@@ -32,6 +39,15 @@ class Database:
                  priority: str,
                  deadline: str | date | None,
                  tags: str | None) -> int | None:
+        """Добавляет новую задачу.
+
+        Args:
+            title: Название.
+            description: Описание.
+            priority: Приоритет.
+            deadline: Дедлайн (по умол. None).
+            tags: Тэги (по умол. None).
+        """
         try:
             deadline_obj = datetime.fromisoformat(
                 deadline) if isinstance(deadline, str) else deadline
@@ -46,6 +62,15 @@ class Database:
             return None
 
     def get_tasks(self, filter_criteria: dict | None = None) -> list:
+        """Возвращает список задач, подходящих под фильтр.
+
+        Args:
+            filter_criteria: Критерии фильтра (по умол. None).
+            query: Запрос.
+
+        Returns:
+            Список задач.
+        """
         query: str = "SELECT * FROM tasks"
         if filter_criteria:
             where_clause = " WHERE " + \
@@ -57,6 +82,30 @@ class Database:
             self.cursor.execute(query)
         return self.cursor.fetchall()
 
+    def search_tasks(self, search_criteria: dict) -> list:
+        """Ищет задачи по заданным критериям.
+
+        Args:
+            search_criteria: Критерии поиска.
+            query: Запрос.
+            clauses: Условия.
+            parameters: Параметры.
+
+        Returns:
+            Список задач.
+        """
+        query: str = "SELECT * FROM tasks"
+        clauses: list = []
+        parameters: list = []
+
+        for column, value in search_criteria.items():
+            clauses.append(f"{column} LIKE ?")
+            parameters.append(f"%{value}%")
+
+        query += " AND ".join(clauses)
+        self.cursor.execute(query, parameters)
+        return self.cursor.fetchall()
+
     def update_task(self,
                     task_id: int,
                     title: str = None,
@@ -64,9 +113,24 @@ class Database:
                     priority: str = None,
                     deadline: str | date | None = None,
                     tags: str = None) -> bool:
+        """Обновляет данные задачи.
+
+        Args:
+            task_id: id задачи.
+            title: Название (по умол. None).
+            description: Описание (по умол. None).
+            priority: Приоритет (по умол. None).
+            deadline: Дедлайн (по умол. None).
+            tags: Тэги (по умол. None).
+            set_clause: Условия.
+            parameters: Параметры.
+
+        Returns:
+            bool значение в зависимости от выполнения.
+        """
         try:
-            set_clause = []
-            parameters = []
+            set_clause: list = []
+            parameters: list = []
 
             if title is not None:
                 set_clause.append("title = ?")
@@ -104,9 +168,20 @@ class Database:
                            task_id: int,
                            status: str,
                            completed_at: str | datetime | None) -> bool:
+        """Обновляет статус задачи.
+
+        Args:
+            task_id: id задачи.
+            status: Статус.
+            completed_at: Дата выполнения.
+
+        Returns:
+            bool значение в зависимости от выполнения.
+        """
         try:
             completed_at_obj = datetime.fromisoformat(
-                completed_at) if isinstance(completed_at, str) else completed_at
+                completed_at) if isinstance(
+                completed_at, str) else completed_at
             self.cursor.execute("""
                 UPDATE Tasks SET status = ?, completed_at = ? WHERE id = ?
             """, (status, completed_at_obj, task_id))
@@ -117,4 +192,5 @@ class Database:
             return False
 
     def close(self) -> None:
+        """Закрывает соединение с БД."""
         self.conn.close()

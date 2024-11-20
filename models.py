@@ -39,7 +39,7 @@ class Task:
 
     @classmethod
     def from_tuple(cls, task_tuple: tuple) -> "Task":
-        """Создает объект Task из кортежа данных
+        """Создает объект Task из кортежа данных.
 
         Args:
             task_tuple: Кортеж данных.

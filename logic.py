@@ -42,7 +42,25 @@ def get_all_tasks(filter_criteria: dict | None = None) -> list:
     return tasks
 
 
-def complete_task(task_id: int, completed_at: str | datetime | None = datetime.now()) -> bool:
+def search_tasks(search_criteria: dict) -> list:
+    """Ищет задачи по критериям.
+
+    Args:
+        search_criteria: Критерии поиска.
+
+    Returns:
+        Список задач.
+    """
+    db = Database()
+    tasks_tuples = db.get_tasks(search_criteria)
+    tasks = [Task.from_tuple(task_tuple) for task_tuple in tasks_tuples]
+    db.close()
+    return tasks
+
+
+def complete_task(task_id: int,
+                  completed_at: str | datetime | None = datetime.now()
+                  ) -> bool:
     """Завершает задачу, обновляя её статус и дату завершения.
 
     Args:
@@ -50,7 +68,7 @@ def complete_task(task_id: int, completed_at: str | datetime | None = datetime.n
         completed_at: Дата завершения (по умол. datetime.now()).
 
     Returns:
-        bool значение в зависимости от выполнения задачи.
+        bool значение в зависимости от выполнения.
     """
     db = Database()
     success = db.update_task_status(task_id, "Completed", completed_at)
