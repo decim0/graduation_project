@@ -61,7 +61,10 @@ class Database:
             print(f"Ошибка при добавлении задачи: {e}")
             return None
 
-    def get_tasks(self, filter_criteria: dict | None = None) -> list:
+    def get_tasks(self,
+                  sort_field: str = None,
+                  sort_order: str = None,
+                  priority_filter: str = None) -> list:
         """Возвращает список задач, подходящих под фильтр.
 
         Args:
@@ -72,14 +75,21 @@ class Database:
             Список задач.
         """
         query: str = "SELECT * FROM tasks"
-        if filter_criteria:
-            where_clause = " WHERE " + \
-                " AND ".join([f"{k} = ?" for k in filter_criteria])
-            query += where_clause
-            parameters = list(filter_criteria.values())
-            self.cursor.execute(query, parameters)
-        else:
-            self.cursor.execute(query)
+        where_clause = []
+        parameters = []
+
+        if priority_filter != "All":
+            where_clause.append("priority = ?")
+            parameters.append(priority_filter)
+
+        if where_clause:
+            query += " WHERE " + " AND ".join(where_clause)
+
+        if sort_field:
+            order = "ASC" if sort_order == "ascending" else "DESC"
+            query += f" ORDER BY {sort_field} {order}"
+
+        self.cursor.execute(query, parameters)
         return self.cursor.fetchall()
 
     def search_tasks(self, search_criteria: dict) -> list:
@@ -94,13 +104,19 @@ class Database:
         Returns:
             Список задач.
         """
-        query: str = "SELECT * FROM tasks"
+        query: str = "SELECT * FROM tasks WHERE "
         clauses: list = []
         parameters: list = []
 
         for column, value in search_criteria.items():
-            clauses.append(f"{column} LIKE ?")
-            parameters.append(f"%{value}%")
+            if column == "title":
+                words = value.split()
+                for word in words:
+                    clauses.append(f"{column} LIKE ?")
+                    parameters.append(f"%{word}%")
+            else:
+                clauses.append(f"{column} = ?")
+                parameters.append(value)
 
         query += " AND ".join(clauses)
         self.cursor.execute(query, parameters)

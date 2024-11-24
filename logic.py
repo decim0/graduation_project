@@ -26,7 +26,9 @@ def add_new_task(title: str,
     return task_id
 
 
-def get_all_tasks(filter_criteria: dict | None = None) -> list:
+def get_all_tasks(sort_field: str = None,
+                  sort_order: str = None,
+                  priority_filter: str = None) -> list:
     """Возвращает список всех задач.
 
     Args:
@@ -36,7 +38,7 @@ def get_all_tasks(filter_criteria: dict | None = None) -> list:
         Список всех задач.
     """
     db = Database()
-    tasks_tuples = db.get_tasks(filter_criteria)
+    tasks_tuples = db.get_tasks(sort_field, sort_order, priority_filter)
     tasks = [Task.from_tuple(task_tuple) for task_tuple in tasks_tuples]
     db.close()
     return tasks
@@ -52,7 +54,7 @@ def search_tasks(search_criteria: dict) -> list:
         Список задач.
     """
     db = Database()
-    tasks_tuples = db.get_tasks(search_criteria)
+    tasks_tuples = db.search_tasks(search_criteria)
     tasks = [Task.from_tuple(task_tuple) for task_tuple in tasks_tuples]
     db.close()
     return tasks
