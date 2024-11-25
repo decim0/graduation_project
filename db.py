@@ -95,33 +95,45 @@ class Database:
         self.cursor.execute(query, parameters)
         return self.cursor.fetchall()
 
-    def search_tasks(self, search_criteria: dict) -> list:
+    def get_task_by_id(self, task_id: int) -> tuple | None:
+        """Получает задачу по ID.
+
+        Args:
+            task_id: id задачи.
+
+        Returns:
+            Задача с указанным id.
+        """
+        query = "SELECT * FROM tasks WHERE id = ?"
+        self.cursor.execute(query, (task_id,))
+        result = self.cursor.fetchone()
+        return result
+
+    def search_tasks(self, search_criteria: str) -> list:
         """Ищет задачи по заданным критериям.
 
         Args:
             search_criteria: Критерии поиска.
             query: Запрос.
-            clauses: Условия.
+            search_pattern: Отформатированные критерии поиска.
             parameters: Параметры.
 
         Returns:
             Список задач.
         """
-        query: str = "SELECT * FROM tasks WHERE "
-        clauses: list = []
-        parameters: list = []
-
-        for column, value in search_criteria.items():
-            if column == "title":
-                words = value.split()
-                for word in words:
-                    clauses.append(f"{column} LIKE ?")
-                    parameters.append(f"%{word}%")
-            else:
-                clauses.append(f"{column} = ?")
-                parameters.append(value)
-
-        query += " AND ".join(clauses)
+        query: str = """
+            SELECT * FROM tasks
+            WHERE
+                title LIKE ? OR
+                description LIKE ? OR
+                priority LIKE ? OR
+                status LIKE ? OR
+                tags LIKE ?
+        """
+        search_pattern: str = "%" + search_criteria + "%"
+        parameters: tuple = (search_pattern, search_pattern,
+                             search_pattern, search_pattern,
+                             search_pattern)
         self.cursor.execute(query, parameters)
         return self.cursor.fetchall()
 

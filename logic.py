@@ -44,7 +44,18 @@ def get_all_tasks(sort_field: str = None,
     return tasks
 
 
-def search_tasks(search_criteria: dict) -> list:
+def get_task_by_id(task_id: int) -> Task | None:
+    """Возвращает задачу по id."""
+    db = Database()
+    task_tuple = db.get_task_by_id(task_id)
+    db.close()
+    if task_tuple:
+        return Task.from_tuple(task_tuple)
+    else:
+        return None
+
+
+def search_tasks(search_criteria: str) -> list:
     """Ищет задачи по критериям.
 
     Args:

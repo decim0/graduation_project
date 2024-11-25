@@ -8,7 +8,8 @@ from logic import (add_new_task,
                    get_all_tasks,
                    search_tasks,
                    complete_task,
-                   update_task)
+                   update_task,
+                   get_task_by_id)
 from models import Task
 
 
@@ -143,7 +144,7 @@ Tags: {task.tags if task.tags else "N/A"}"""
            и обновляет список задач."""
         search_term: str = self.search_edit.text()
         if search_term:
-            tasks: list[Task] = search_tasks({"title": search_term})
+            tasks: list[Task] = search_tasks(search_term)
             self.update_task_list_from_tasks(tasks)
         else:
             self.update_task_list()
@@ -165,7 +166,7 @@ Tags: {task.tags if task.tags else "N/A"}"""
            предоставляет опции для обновления или завершения."""
         task_id: int = item.data(Qt.ItemDataRole.UserRole)
         try:
-            task: Task = get_all_tasks({"id": task_id})[0]
+            task: Task = get_task_by_id(task_id)
             details_dialog = TaskDetailsDialog(task)
             details_dialog.exec()
             self.update_task_list()
@@ -274,7 +275,7 @@ class TaskUpdateDialog(QDialog):
                        deadline,
                        tags):
             QMessageBox.information(
-                self, "Успех", "Задача успешно выполнена!")
+                self, "Успех", "Задача успешно обновлена!")
         else:
             QMessageBox.warning(
                 self, "Ошибка", "Ошибка при обновлении задачи.")
