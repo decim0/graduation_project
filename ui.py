@@ -4,7 +4,11 @@ from PyQt6.QtWidgets import (QWidget, QDialog, QFormLayout, QLabel, QLineEdit,
                              QListWidgetItem, QDateTimeEdit,
                              QMessageBox, QDialogButtonBox)
 from PyQt6.QtCore import Qt, QDateTime
-from logic import add_new_task, get_all_tasks, search_tasks, complete_task, update_task
+from logic import (add_new_task,
+                   get_all_tasks,
+                   search_tasks,
+                   complete_task,
+                   update_task)
 from models import Task
 
 

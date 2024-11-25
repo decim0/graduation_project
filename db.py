@@ -22,9 +22,11 @@ class Database:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL,
                 description TEXT,
-                priority TEXT NOT NULL CHECK (priority IN ('Low', 'Medium', 'High')),
+                priority TEXT NOT NULL
+                    CHECK (priority IN ('Low', 'Medium', 'High')),
                 deadline DATETIME,
-                status TEXT NOT NULL DEFAULT 'Open' CHECK (status IN ('Open', 'Completed')),
+                status TEXT NOT NULL DEFAULT 'Open' CHECK
+                    (status IN ('Open', 'Completed')),
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 completed_at DATETIME,
                 tags TEXT
@@ -52,7 +54,8 @@ class Database:
             deadline_obj = datetime.fromisoformat(
                 deadline) if isinstance(deadline, str) else deadline
             self.cursor.execute("""
-                INSERT INTO Tasks (title, description, priority, deadline, tags)
+                INSERT INTO Tasks
+                    (title, description, priority, deadline, tags)
                 VALUES (?, ?, ?, ?, ?)
             """, (title, description, priority, deadline_obj, tags))
             self.conn.commit()
