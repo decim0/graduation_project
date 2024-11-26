@@ -98,15 +98,15 @@ def update_task(task_id: int,
     """Обновляет данные задачи.
 
     Args:
-        task_id (int): id задачи.
-        title (str, optional): Заголовок (по умол. None).
-        description (str, optional): Описание (по умол. None).
-        priority (str, optional): Приоритет (по умол. None).
-        deadline (str | date | None, optional): Дедлайн (по умол. None).
-        tags (str, optional): Тэги (по умол. None).
+        task_id: id задачи.
+        title: Заголовок (по умол. None).
+        description: Описание (по умол. None).
+        priority: Приоритет (по умол. None).
+        deadline: Дедлайн (по умол. None).
+        tags: Тэги (по умол. None).
 
     Returns:
-        bool: _description_
+        bool значение в зависимости от выполнения.
     """
     db = Database()
     success = db.update_task(
